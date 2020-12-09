@@ -28,7 +28,7 @@ class MovieList extends Component {
 
 
     componentDidUpdate(prevProps, prevState) {
-
+        // Here I made a timeout that refreshes every time I type in the input, if I don't type for 1s the timeout will finish and will make an API call to the server. This was tricky to do, and the way I managed to execute this, was by stating the timout as null in the state, and then I added a timeout to the variable.
         if (prevState.movie !== this.state.movie) {
             clearTimeout(this.state.timeoutId)
             this.setState({
@@ -38,6 +38,8 @@ class MovieList extends Component {
                 }, 1000)
             })
         }
+        // This is where I check if there is a movie search, on not. 
+        // TASK: make this api call through action!!!
         if (this.state.debouncedMovie && prevState.debouncedMovie !== this.state.debouncedMovie) {
             const search = async (title) => {
                 const {data} = await tmd.get(`/search/movie?`, {
@@ -56,14 +58,19 @@ class MovieList extends Component {
         }
     }
 
+    movieRenderer = () => {
+        if (this.state.debouncedMovie && this.state.movieDataResults.length > 0) {
+            return <div>We searched and got the data for movie and will show it</div>
+        }
+        if (this.state.debouncedMovie && this.state.movieDataResults.length === 0) {
+            return <div>We searched and got the data for movie but there are no such movies in database</div>
+        }
+        return <div>Showing the popular data</div>
+    }
 
 
     render() {
-        // console.log('This is from the render ', this.props)
-        // console.log(this.state.movieDataResults && this.state.movieDataResults)
-        // console.log(tmd)
-        // console.log("This is from the render ", this.state.movieDataResults)
-        // console.log('Debounced  ', this.state.debouncedMovie)
+        console.log('render')
         return (
             <div>
                 <h1>MovieList</h1>
@@ -71,14 +78,8 @@ class MovieList extends Component {
                     <label>Search for a movie</label> <br />
                     <input type='text' onChange={(event) => {this.setState({movie: event.target.value})}} />
                 </form>
-                {/* <h1>{this.state.movieDataResults.length > 0 ? 'I got it' : 'nah'}</h1> */}
                 <div>
-                    {
-                        this.state.debouncedMovie ?
-                            (<div>We searched and got the data for movie and will show it</div>)
-                            :
-                            (<div>Showing the popular data</div>)
-                    }
+                    {this.movieRenderer()}
                 </div>
                 <Movie />
             </div>
@@ -96,39 +97,3 @@ const mapStateToPops = (state) => {
 
 
 export default connect(mapStateToPops, {fetchPopularData, fetchMovie})(MovieList);
-
-
-
-
-
-
-
-
-
-
-
-
-        // if (prevState.movie !== this.state.movie) {
-        //     let timerId = null
-        //     clearTimeout(timerId)
-        //     timerId = setTimeout(() => {
-        //         this.setState({debouncedMovie: this.state.movie})
-        //         console.log('First timer ', this.state.debouncedMovie)
-        //     }, 1000);
-        // }
-
-
-
-        // if (prevState.movie !== this.state.movie) {
-        //     console.log('Movie is changed: ', this.state.movie)
-        //     const timerId = setTimeout(() => {
-        //         this.setState({debouncedMovie: this.state.movie})
-        //     }, 1000);
-        //     if (this.state.movie !== this.state.debouncedMovie) {
-        //         return () => clearTimeout(timerId)
-        //     }
-
-        // }
-        // if (this.state.movie === this.state.debouncedMovie) {
-        //     console.log('Debounced Movie changed', this.state.debouncedMovie)
-        // }
